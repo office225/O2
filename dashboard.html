@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Family Auto Share Project Dashboard</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <style>
+    body { margin:0; font-family:Arial,sans-serif; background:#0f172a; color:white; }
+    header { padding:18px 20px; background:#111827; border-bottom:1px solid rgba(255,255,255,.1); }
+    .grid { display:grid; grid-template-columns:360px 1fr; min-height:calc(100vh - 68px); }
+    .sidebar { padding:18px; background:#111827; border-right:1px solid rgba(255,255,255,.08); overflow:auto; }
+    .card { background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.1); border-radius:16px; padding:14px; margin-bottom:14px; }
+    #map { width:100%; height:calc(100vh - 68px); }
+    .small { color:#cbd5e1; font-size:13px; line-height:1.5; }
+    .mono { font-family:Consolas,monospace; font-size:12px; word-break:break-all; }
+    .status-online { color:#86efac; font-weight:700; }
+    .status-offline { color:#fca5a5; font-weight:700; }
+    .item { border-top:1px solid rgba(255,255,255,.08); padding-top:8px; margin-top:8px; }
+  </style>
+</head>
+<body>
+  <header><strong>Family Auto Share Project</strong> — Live Dashboard</header>
+  <div class="grid">
+    <aside class="sidebar">
+      <div class="card">
+        <strong>Status</strong>
+        <div id="status" class="small" style="margin-top:10px;">Waiting for data.</div>
+      </div>
+      <div class="card">
+        <strong>Users</strong>
+        <div id="users" class="small">No data yet.</div>
+      </div>
+      <div class="card">
+        <strong>Recent History</strong>
+        <div id="history" class="small">No history yet.</div>
+      </div>
+    </aside>
+    <main><div id="map"></div></main>
+  </div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script>
+    const apiBase = 'https://your-api.onrender.com';
+    const map = L.map('map').setView([13.7563, 100.5018], 6);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(map);
+    const markers = {};
+
+    function isOnline(lastSeen) {
+      if (!lastSeen) return false;
+      const diff = Date.now() - new Date(lastSeen).getTime();
+      return diff < 120000;
+    }
+
+    async function refreshData() {
+      const status = document.getElementById('status');
+      const usersEl = document.getElementById('users');
+      const historyEl = document.getElementById('history');
+
+      try {
+        const res = await fetch(apiBase + '/api/dashboard/active');
+        const data = await res.json();
+        const latest = data.latest || {};
+        const links = data.links || {};
+        let activeCount = 0;
+
+        Object.entries(latest).forEach(([token, point]) => {
+          if (!point) return;
+          const latlng = [point.latitude, point.longitude];
+          if (!markers[token]) {
+            markers[token] = L.marker(latlng).addTo(map);
+          } else {
+            markers[token].setLatLng(latlng);
+          }
+          markers[token].bindPopup(`Token: ${token}<br/>${point.timestamp}<br/>Battery: ${point.battery ?? 'n/a'}`);
+          activeCount += 1;
+        });
+
+        const userHtml = Object.entries(links).map(([token, item]) => {
+          const online = isOnline(item.last_seen);
+          return `<div class="item"><strong>${item.label || 'Participant'}</strong><br/><span class="mono">${token}</span><br/><span class="${online ? 'status-online' : 'status-offline'}">${online ? 'Online' : 'Offline'}</span></div>`;
+        }).join('');
+        usersEl.innerHTML = userHtml || 'No active users yet.';
+        status.textContent = `Loaded ${activeCount} live marker(s) at ` + new Date().toLocaleTimeString();
+
+        const firstToken = Object.keys(latest)[0];
+        if (firstToken) {
+          const hres = await fetch(apiBase + '/api/history/' + firstToken);
+          const hdata = await hres.json();
+          historyEl.innerHTML = (hdata.history || []).slice(-5).reverse().map(item =>
+            `<div class="item">${item.timestamp}<br/>${item.latitude}, ${item.longitude}</div>`
+          ).join('') || 'No history yet.';
+        } else {
+          historyEl.innerHTML = 'No history yet.';
+        }
+      } catch (err) {
+        status.textContent = 'Backend unavailable. Set your public API URL and start the server.';
+      }
+    }
+
+    refreshData();
+    setInterval(refreshData, 10000);
+  </script>
+</body>
+</html>
